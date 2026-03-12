@@ -1,0 +1,1573 @@
+Add Audio File
+
+Place an audio file in
+res/raw/music.mp3
+
+activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/playBtn"
+        android:text="Play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/stopBtn"
+        android:text="Stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
+
+MainActivity.kt
+package com.example.mediaapi
+
+import android.media.MediaPlayer
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+
+class MainActivity : AppCompatActivity() {
+
+    var mediaPlayer: MediaPlayer? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val playBtn = findViewById<Button>(R.id.playBtn)
+        val stopBtn = findViewById<Button>(R.id.stopBtn)
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.music)
+
+        playBtn.setOnClickListener {
+            mediaPlayer?.start()
+        }
+
+        stopBtn.setOnClickListener {
+            if(mediaPlayer?.isPlaying == true){
+                mediaPlayer?.pause()
+            }
+        }
+    }
+}
+
+2. Telephony API Example (Kotlin)
+
+Add Permission in AndroidManifest.xml
+
+<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+
+MainActivity.kt
+package com.example.telephonyapi
+
+import android.os.Bundle
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyManager
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val telephonyManager = getSystemService(TELEPHONY_SERVICE) as TelephonyManager
+
+        val listener = object : PhoneStateListener() {
+
+            override fun onCallStateChanged(state: Int, phoneNumber: String?) {
+
+                when(state){
+
+                    TelephonyManager.CALL_STATE_IDLE ->
+                        Toast.makeText(applicationContext,"Phone Idle",Toast.LENGTH_SHORT).show()
+
+                    TelephonyManager.CALL_STATE_OFFHOOK ->
+                        Toast.makeText(applicationContext,"Call Active",Toast.LENGTH_SHORT).show()
+
+                    TelephonyManager.CALL_STATE_RINGING ->
+                        Toast.makeText(applicationContext,"Incoming Call",Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        telephonyManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE)
+    }
+}
+
+
+---------------
+ Programming Security and permissions
+
+1. Add Permission in AndroidManifest.xml
+<uses-permission android:name="android.permission.CAMERA"/>
+
+2. activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnPermission"
+        android:text="Request Camera Permission"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
+
+3. MainActivity.kt
+package com.example.securitypermission
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.widget.Button
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
+class MainActivity : AppCompatActivity() {
+
+    private val CAMERA_PERMISSION_CODE = 100
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<Button>(R.id.btnPermission)
+
+        button.setOnClickListener {
+
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(this, "Camera Permission Already Granted", Toast.LENGTH_SHORT).show()
+
+            } else {
+
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.CAMERA),
+                    CAMERA_PERMISSION_CODE
+                )
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_SHORT).show()
+
+            } else {
+
+                Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+}
+
+
+p9-----
+
+Program: Threads, Handlers and Asynchronous Programming (Kotlin)
+1. activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/startBtn"
+        android:text="Start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/textView"
+        android:text="Timer: 0"
+        android:textSize="20sp"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+
+2. MainActivity.kt
+package com.example.threadhandler
+
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+
+    var counter = 0
+    val handler = Handler(Looper.getMainLooper())
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val textView = findViewById<TextView>(R.id.textView)
+        val startBtn = findViewById<Button>(R.id.startBtn)
+
+        startBtn.setOnClickListener {
+
+            Thread {
+
+                while (counter < 10) {
+
+                    Thread.sleep(1000)
+                    counter++
+
+                    handler.post {
+                        textView.text = "Timer: $counter"
+                    }
+                }
+
+            }.start()
+        }
+    }
+}
+
+
+p7----
+
+1. Program on Android Service (Kotlin)
+
+MyService.kt
+package com.example.serviceexample
+
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import android.widget.Toast
+
+class MyService : Service() {
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        Toast.makeText(this,"Service Started",Toast.LENGTH_LONG).show()
+
+        return START_STICKY
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Toast.makeText(this,"Service Stopped",Toast.LENGTH_LONG).show()
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+}
+
+MainActivity.kt
+package com.example.serviceexample
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val start = findViewById<Button>(R.id.startBtn)
+        val stop = findViewById<Button>(R.id.stopBtn)
+
+        start.setOnClickListener {
+            startService(Intent(this, MyService::class.java))
+        }
+
+        stop.setOnClickListener {
+            stopService(Intent(this, MyService::class.java))
+        }
+    }
+}
+
+2. Program on Notification (Kotlin)
+
+MainActivity.kt
+package com.example.notificationexample
+
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import android.widget.Button
+
+class MainActivity : AppCompatActivity() {
+
+    val CHANNEL_ID = "MyChannel"
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        createNotificationChannel()
+
+        val button = findViewById<Button>(R.id.notifyBtn)
+
+        button.setOnClickListener {
+
+            val builder = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("Android Notification")
+                .setContentText("This is a notification example")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+            val notificationManager = NotificationManagerCompat.from(this)
+            notificationManager.notify(1, builder.build())
+        }
+    }
+
+    private fun createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            val name = "Channel"
+            val descriptionText = "Notification Channel"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(CHANNEL_ID, name, importance)
+
+            val notificationManager: NotificationManager =
+                getSystemService(NotificationManager::class.java)
+
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+}
+
+3. Program on Broadcast Receiver (Kotlin
+
+MyReceiver.kt
+
+package com.example.broadcastreceiver
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.widget.Toast
+
+class MyReceiver : BroadcastReceiver() {
+
+    override fun onReceive(context: Context, intent: Intent) {
+
+        Toast.makeText(context,"Broadcast Received",Toast.LENGTH_LONG).show()
+    }
+}
+
+Register Receiver in AndroidManifest.xml
+
+<receiver android:name=".MyReceiver">
+    <intent-filter>
+        <action android:name="android.intent.action.AIRPLANE_MODE"/>
+    </intent-filter>
+</receiver>
+
+
+p-6-------
+
+1. Program using Android Intent Class
+
+activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnNext"
+        android:text="Open Second Activity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+
+MainActivity.kt
+package com.example.intentexample
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<Button>(R.id.btnNext)
+
+        button.setOnClickListener {
+
+            val intent = Intent(this, SecondActivity::class.java)
+            startActivity(intent)
+
+        }
+    }
+}
+
+SecondActivity.kt
+package com.example.intentexample
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class SecondActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_second)
+    }
+}
+
+
+2. Program using Events and Event Listeners
+
+Event Listener detects user actions like button click.
+
+activity_main.xml
+<Button
+    android:id="@+id/btnClick"
+    android:text="Click Me"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"/>
+
+MainActivity.kt
+package com.example.eventlistener
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.MotionEvent
+import android.widget.Button
+import android.widget.Toast
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<Button>(R.id.btnClick)
+
+        // 1 Click Event
+        button.setOnClickListener {
+            Toast.makeText(this,"Button Clicked",Toast.LENGTH_SHORT).show()
+        }
+
+        // 2 Long Click Event
+        button.setOnLongClickListener {
+            Toast.makeText(this,"Button Long Pressed",Toast.LENGTH_SHORT).show()
+            true
+        }
+
+        // 3 Touch Event
+        button.setOnTouchListener { _, event ->
+            if(event.action == MotionEvent.ACTION_DOWN){
+                Toast.makeText(this,"Button Touched",Toast.LENGTH_SHORT).show()
+            }
+            false
+        }
+
+        // 4 Focus Event
+        button.setOnFocusChangeListener { _, hasFocus ->
+            if(hasFocus){
+                Toast.makeText(this,"Button Focused",Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // 5 Hover Event
+        button.setOnHoverListener { _, event ->
+            if(event.action == MotionEvent.ACTION_HOVER_ENTER){
+                Toast.makeText(this,"Hover Over Button",Toast.LENGTH_SHORT).show()
+            }
+            false
+        }
+    }
+}
+
+3. Program using Adapter (ListView Example)
+
+Adapter connects data with UI components like ListView.
+
+activity_main.xml
+<ListView
+    android:id="@+id/listView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+MainActivity.kt
+package com.example.adapterexample
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.ListView
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val listView = findViewById<ListView>(R.id.listView)
+
+        val fruits = arrayOf("Apple","Mango","Banana","Orange","Grapes")
+
+        val adapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,fruits)
+
+        listView.adapter = adapter
+    }
+}
+
+
+p5---
+
+1. Program on Android Menu (Options Menu)
+Step 1: Create menu file
+
+res/menu/menu_main.xml
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_settings"
+        android:title="Settings"/>
+
+    <item
+        android:id="@+id/menu_about"
+        android:title="About"/>
+
+</menu>
+
+MainActivity.kt
+package com.example.menuexample
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.Toast
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+
+            R.id.menu_settings ->
+                Toast.makeText(this,"Settings Selected",Toast.LENGTH_LONG).show()
+
+            R.id.menu_about ->
+                Toast.makeText(this,"About Selected",Toast.LENGTH_LONG).show()
+        }
+
+        return true
+    }
+}
+
+2. Program on Dialog (AlertDialog)
+
+MainActivity.kt
+package com.example.dialogexample
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AlertDialog
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<Button>(R.id.btnDialog)
+
+        button.setOnClickListener {
+
+            val builder = AlertDialog.Builder(this)
+
+            builder.setTitle("Exit")
+            builder.setMessage("Do you want to exit?")
+
+            builder.setPositiveButton("Yes"){ _, _ -> finish() }
+
+            builder.setNegativeButton("No"){ dialog, _ -> dialog.dismiss() }
+
+            builder.show()
+        }
+    }
+}
+
+3. Program on Dialog Fragment
+
+MyDialogFragment.kt
+package com.example.dialogfragment
+
+import android.app.Dialog
+import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
+
+class MyDialogFragment : DialogFragment() {
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+
+        return AlertDialog.Builder(requireContext())
+            .setTitle("Dialog Fragment")
+            .setMessage("This is Dialog Fragment Example")
+            .setPositiveButton("OK"){ _, _ -> }
+            .create()
+    }
+}
+
+MainActivity.kt
+package com.example.dialogfragment
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val button = findViewById<Button>(R.id.btnShow)
+
+        button.setOnClickListener {
+
+            val dialog = MyDialogFragment()
+            dialog.show(supportFragmentManager,"dialog")
+
+        }
+    }
+}
+
+
+p3----
+
+1. AppBar (Toolbar) Example
+
+activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:title="My Application"
+        android:background="@color/purple_500"/>
+
+</LinearLayout>
+
+MainActivity.kt
+package com.example.appbarexample
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import androidx.appcompat.widget.Toolbar
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+
+    }
+}
+
+
+
+A Fragment represents a reusable UI part inside an Activity.
+
+fragment_first.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="This is Fragment"
+        android:textSize="22sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+
+FirstFragment.kt
+package com.example.fragmentexample
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+
+class FirstFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
+        return inflater.inflate(R.layout.fragment_first, container, false)
+    }
+}
+
+activity_main.xml
+<FrameLayout
+    android:id="@+id/fragmentContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+MainActivity.kt
+package com.example.fragmentexample
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, FirstFragment())
+            .commit()
+
+    }
+}
+
+---------
+calculator
+
+Calculator UI (activity_main.xml)
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/textInput"
+        android:text="0"
+        android:textSize="28sp"
+        android:gravity="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/textResult"
+        android:text="Result"
+        android:textSize="24sp"
+        android:gravity="end"
+        android:layout_marginBottom="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <GridLayout
+        android:columnCount="4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button android:id="@+id/btn7" android:text="7"/>
+        <Button android:id="@+id/btn8" android:text="8"/>
+        <Button android:id="@+id/btn9" android:text="9"/>
+        <Button android:id="@+id/btnAdd" android:text="+"/>
+
+        <Button android:id="@+id/btn4" android:text="4"/>
+        <Button android:id="@+id/btn5" android:text="5"/>
+        <Button android:id="@+id/btn6" android:text="6"/>
+        <Button android:id="@+id/btnSub" android:text="-"/>
+
+        <Button android:id="@+id/btn1" android:text="1"/>
+        <Button android:id="@+id/btn2" android:text="2"/>
+        <Button android:id="@+id/btn3" android:text="3"/>
+        <Button android:id="@+id/btnMul" android:text="*"/>
+
+        <Button android:id="@+id/btn0" android:text="0"/>
+        <Button android:id="@+id/btnClear" android:text="C"/>
+        <Button android:id="@+id/btnEqual" android:text="="/>
+        <Button android:id="@+id/btnDiv" android:text="/"/>
+
+    </GridLayout>
+
+</LinearLayout>
+
+2. Calculator Logic (MainActivity.kt)
+package com.example.calculator
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+
+class MainActivity : AppCompatActivity() {
+
+    var num1 = 0.0
+    var operator = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val input = findViewById<TextView>(R.id.textInput)
+        val result = findViewById<TextView>(R.id.textResult)
+
+        numberButton(R.id.btn0,"0")
+        numberButton(R.id.btn1,"1")
+        numberButton(R.id.btn2,"2")
+        numberButton(R.id.btn3,"3")
+        numberButton(R.id.btn4,"4")
+        numberButton(R.id.btn5,"5")
+        numberButton(R.id.btn6,"6")
+        numberButton(R.id.btn7,"7")
+        numberButton(R.id.btn8,"8")
+        numberButton(R.id.btn9,"9")
+
+        operatorButton(R.id.btnAdd,"+")
+        operatorButton(R.id.btnSub,"-")
+        operatorButton(R.id.btnMul,"*")
+        operatorButton(R.id.btnDiv,"/")
+
+        findViewById<Button>(R.id.btnClear).setOnClickListener {
+            input.text = ""
+            result.text = "Result"
+            num1 = 0.0
+        }
+
+        findViewById<Button>(R.id.btnEqual).setOnClickListener {
+
+            val num2 = input.text.toString().toDouble()
+            var res = 0.0
+
+            when(operator){
+                "+" -> res = num1 + num2
+                "-" -> res = num1 - num2
+                "*" -> res = num1 * num2
+                "/" -> res = num1 / num2
+            }
+
+            result.text = res.toString()
+            input.text = ""
+        }
+    }
+
+    fun numberButton(id:Int,value:String){
+
+        findViewById<Button>(id).setOnClickListener {
+            input.append(value)
+        }
+    }
+
+    fun operatorButton(id:Int,op:String){
+
+        findViewById<Button>(id).setOnClickListener {
+            num1 = input.text.toString().toDouble()
+            operator = op
+            input.text = ""
+        }
+    }
+}
+
+---------
+p3---1. Linear Layout
+
+Arranges UI elements vertically or horizontally.
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Linear Layout Example"
+        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:text="Button 1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+
+2. Relative Layout
+
+Positions UI elements relative to other elements.
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/text1"
+        android:text="Relative Layout"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:text="Click"
+        android:layout_below="@id/text1"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>
+---------
+3. Frame Layout
+
+Displays one view on top of another.
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:src="@mipmap/ic_launcher"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:text="Frame Layout"
+        android:textSize="20sp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</FrameLayout>
+-----------
+4. Table Layout
+
+Displays UI elements in rows and columns.
+
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TableRow>
+        <TextView android:text="Name"/>
+        <TextView android:text="Age"/>
+    </TableRow>
+
+    <TableRow>
+        <TextView android:text="Kunal"/>
+        <TextView android:text="21"/>
+    </TableRow>
+
+</TableLayout>
+-----
+5. Grid Layout
+
+Displays elements in a grid structure.
+
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:columnCount="3"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button android:text="1"/>
+    <Button android:text="2"/>
+    <Button android:text="3"/>
+    <Button android:text="4"/>
+    <Button android:text="5"/>
+    <Button android:text="6"/>
+
+</GridLayout>
+------------
+6. ListView
+
+Displays list of items vertically.
+
+activity_main.xml
+<ListView
+    android:id="@+id/listView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+Kotlin Code
+val listView = findViewById<ListView>(R.id.listView)
+
+val items = arrayOf("Apple","Mango","Banana","Orange")
+
+val adapter = ArrayAdapter(this,
+android.R.layout.simple_list_item_1,items)
+
+listView.adapter = adapter
+
+-------------
+7. GridView
+
+Displays items in grid format.
+
+XML
+<GridView
+    android:id="@+id/gridView"
+    android:numColumns="3"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+
+Kotlin
+val gridView = findViewById<GridView>(R.id.gridView)
+
+val numbers = arrayOf("1","2","3","4","5","6")
+
+val adapter = ArrayAdapter(this,
+android.R.layout.simple_list_item_1,numbers)
+
+gridView.adapter = adapter
+
+8. Absolute Layout (Deprecated but sometimes asked)
+<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:text="Button"
+        android:layout_x="50dp"
+        android:layout_y="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</AbsoluteLayout>
+
+
+
+p2----
+
+Example Program: Activity Life Cycle
+MainActivity.kt
+package com.example.activitylifecycle
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.util.Log
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        Log.d("Lifecycle","onCreate called")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d("Lifecycle","onStart called")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d("Lifecycle","onResume called")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d("Lifecycle","onPause called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d("Lifecycle","onStop called")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d("Lifecycle","onDestroy called")
+    }
+}
+
+----------
+2. Multiple Activities Example
+MainActivity.kt
+val button = findViewById<Button>(R.id.btnNext)
+
+button.setOnClickListener {
+
+    val intent = Intent(this, SecondActivity::class.java)
+    startActivity(intent)
+
+}
+
+SecondActivity.kt
+
+package com.example.multipleactivity
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+
+class SecondActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_second)
+
+    }
+}
+
+-----
+Fragment Program (Kotlin)
+
+MyFragment.kt
+package com.example.fragmentlifecycle
+
+import android.content.Context
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+
+class MyFragment : Fragment() {
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.d("FragmentLifecycle","onAttach called")
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d("FragmentLifecycle","onCreate called")
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+
+        Log.d("FragmentLifecycle","onCreateView called")
+
+        return inflater.inflate(R.layout.fragment_layout, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        Toast.makeText(this,"on ",Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onStart() {
+        
+        Toast.makeText(this,"on ",Toast.LENGTH_SHORT).show()
+	super.onStart()
+    }
+
+    override fun onResume() {
+        
+        Toast.makeText(this,"on resume",Toast.LENGTH_SHORT).show()
+	super.onResume()
+    }
+
+    override fun onPause() {
+        Toast.makeText(this,"on resume",Toast.LENGTH_SHORT).show()
+	super.onPause()
+    }
+
+    override fun onStop() {
+	Toast.makeText(this,"on resume",Toast.LENGTH_SHORT).show()
+        super.onStop()
+        
+    }
+
+    override fun onDestroyView() {
+        Toast.makeText(this,"on resume",Toast.LENGTH_SHORT).show()
+	super.onDestroyView()
+        
+    }
+
+    override fun onDestroy() {
+	Toast.makeText(this,"on resume",Toast.LENGTH_SHORT).show()
+        super.onDestroy()
+        
+    }
+
+    override fun onDetach() {
+	Toast.makeText(this,"on resume",Toast.LENGTH_SHORT).show()
+        super.onDetach()
+        
+    }
+}
+
+Fragment Layout (fragment_layout.xml)
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:text="Fragment Lifecycle Example"
+        android:textSize="22sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+
+Load Fragment in Activity
+
+MainActivity.kt
+supportFragmentManager.beginTransaction()
+    .replace(R.id.fragmentContainer, MyFragment())
+    .commit()
+
+database---
+
+1. Create Database Helper Class
+DBHelper.kt
+
+package com.example.sqlitedemo
+
+import android.content.ContentValues
+import android.content.Context
+import android.database.Cursor
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+
+class DBHelper(context: Context) :
+    SQLiteOpenHelper(context,"StudentDB",null,1) {
+
+    override fun onCreate(db: SQLiteDatabase) {
+
+        db.execSQL(
+            "CREATE TABLE Student(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, age TEXT)"
+        )
+    }
+
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
+
+        db.execSQL("DROP TABLE IF EXISTS Student")
+        onCreate(db)
+
+    }
+
+    fun insertData(name:String,age:String):Boolean{
+
+        val db=this.writableDatabase
+        val values=ContentValues()
+
+        values.put("name",name)
+        values.put("age",age)
+
+        val result=db.insert("Student",null,values)
+
+        return result!=-1L
+    }
+
+    fun getData():Cursor{
+
+        val db=this.readableDatabase
+        return db.rawQuery("SELECT * FROM Student",null)
+
+    }
+
+    fun deleteData(id:String){
+
+        val db=this.writableDatabase
+        db.delete("Student","id=?", arrayOf(id))
+
+    }
+}
+
+2. UI Layout
+activity_main.xml
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/editName"
+        android:hint="Enter Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/editAge"
+        android:hint="Enter Age"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnInsert"
+        android:text="Insert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnView"
+        android:text="View Data"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
+
+3. MainActivity.kt
+package com.example.sqlitedemo
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.*
+import android.database.Cursor
+
+class MainActivity : AppCompatActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        val db = DBHelper(this)
+
+        val name = findViewById<EditText>(R.id.editName)
+        val age = findViewById<EditText>(R.id.editAge)
+
+        val insert = findViewById<Button>(R.id.btnInsert)
+        val view = findViewById<Button>(R.id.btnView)
+
+        insert.setOnClickListener {
+
+            val success=db.insertData(
+                name.text.toString(),
+                age.text.toString()
+            )
+
+            if(success)
+                Toast.makeText(this,"Data Inserted",Toast.LENGTH_SHORT).show()
+            else
+                Toast.makeText(this,"Error",Toast.LENGTH_SHORT).show()
+
+        }
+
+        view.setOnClickListener {
+
+            val cursor:Cursor=db.getData()
+
+            if(cursor.count==0){
+
+                Toast.makeText(this,"No Data",Toast.LENGTH_SHORT).show()
+
+            }else{
+
+                var data=""
+
+                while(cursor.moveToNext()){
+
+                    data+="ID:"+cursor.getString(0)+"\n"
+                    data+="Name:"+cursor.getString(1)+"\n"
+                    data+="Age:"+cursor.getString(2)+"\n\n"
+
+                }
+
+                Toast.makeText(this,data,Toast.LENGTH_LONG).show()
+
+            }
+
+        }
+    }
+}
+
+
+
+sir database
+
+class file 
+
+package com.example.brodcast
+
+import android.content.ContentValues
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import android.database.sqlite.SQLiteOpenHelper
+import android.widget.Toast
+
+class Mydb(var ct:Context):SQLiteOpenHelper(ct,"tyit",null,1) {
+    override fun onCreate(p0: SQLiteDatabase?) {
+        p0?.execSQL("create table demo(id integer primary key autoincrement,username varchar(10),password varchar(10))")
+
+    }
+
+    override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
+        TODO("Not yet implemented")
+    }
+
+    fun addData(un:String,pass:String){
+        var ob = this.writableDatabase
+        var cv = ContentValues()
+        cv.put("username",un)
+        cv.put("password",pass)
+        var res = ob.insert("demo",null,cv)
+        if(res > 0){
+            Toast.makeText(ct,"Rec Insert",Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(ct,"Error",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun readData():ArrayList<String>{
+        var ob = this.readableDatabase
+        var data = ArrayList<String>()
+        var res = ob.rawQuery("select * from demo",null)
+        if(res.moveToFirst()){
+            do{
+                data.add(res.getString(0).toString()+" "+res.getString(1).toString()+" "+res.getString(2).toString())
+            }while (res.moveToNext())
+        }
+
+        return data
+    }
+
+    fun deleteRec(id:String){
+        var ob = this.writableDatabase
+        var res = ob.delete("demo","id=?", arrayOf("$id"))
+        if(res == 1){
+            Toast.makeText(ct,"Rec delete",Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(ct,"Error",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+}
+
+
+main kt file 
+
+package com.example.brodcast
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
+
+class MainActivity : AppCompatActivity() {
+    var dbObj = Mydb(this)
+    var b_r = object : BroadcastReceiver() {
+
+        override fun onReceive(p0: Context?, p1: Intent?) {
+            if (p1?.action==Intent.ACTION_AIRPLANE_MODE_CHANGED){
+                Toast.makeText(p0, "airplone mode on ",Toast.LENGTH_SHORT).show()
+                var flag = p1.getBooleanExtra("state", false )
+                if (flag)
+                {
+                    Toast.makeText(p0,"On",Toast.LENGTH_SHORT).show()
+                }
+                else
+                {
+                    Toast.makeText(p0,"off",Toast.LENGTH_SHORT).show()
+                }
+            }
+
+
+        }
+
+    }
+
+    override fun onStart() {
+        super.onStart()
+        registerReceiver(b_r, IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED))
+
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unregisterReceiver(b_r)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setContentView(R.layout.activity_main)
+
+            button.setOnClickListener {
+                var u = un.text.toString()
+                var p = pass.text.toString()
+                dbObj.addData(u,p)
+                readValue()
+            }
+
+            readValue()
+
+            list_view.setOnItemLongClickListener { adapterView, view, i, l ->
+                var id = list_view.getItemAtPosition(i).toString()[0].toString()
+                dbObj.deleteRec(id)
+                readValue()
+                //Toast.makeText(this,"$id",Toast.LENGTH_SHORT).show()
+
+                true
+            }
+        }
+
+      fun readValue(){
+          var table_data:ArrayList<String> = dbObj.readData()
+          var dataAdapter = ArrayAdapter(this,android.R.layout.simple_list_item_1,table_data)
+          list_view.adapter = dataAdapter
+      }
+
+}
